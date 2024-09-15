@@ -1,6 +1,7 @@
 package com.ChatApp.ChatApp.controllers;
 
 import com.ChatApp.ChatApp.models.Message;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -41,7 +42,14 @@ public class ChatController {
         messageList.add(message);
         addUserToList(message.getSender());
 
-        return new Message(HtmlUtils.htmlEscape(message.getSender()), HtmlUtils.htmlEscape(message.getContent()));
+        return new Message(HtmlUtils.htmlEscape(message.getSender()), HtmlUtils.htmlEscape(message.getContent()), LocalTime.parse(HtmlUtils.htmlEscape(String.valueOf(message.getSentAt()))));
+    }
+
+    @MessageMapping("/userList")
+    @SendTo("/topic/usersList")
+    public List<String> getChatUsersList(){
+        //String json = new Gson().toJson(chatUsersList);
+        return chatUsersList;
     }
 
     public void addUserToList(String name){
@@ -56,6 +64,11 @@ public class ChatController {
                 chatUsersList.remove(listName);
             }
         }
+    }
+    @MessageMapping("/messageList")
+    @SendTo("/topic/messageList")
+    public List<Message> getMessageList(){
+        return messageList;
     }
 
     @Scheduled(fixedRate = 3000)
