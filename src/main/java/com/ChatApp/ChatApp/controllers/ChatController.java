@@ -1,6 +1,9 @@
 package com.ChatApp.ChatApp.controllers;
 
 import com.ChatApp.ChatApp.models.Message;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -58,11 +61,18 @@ public class ChatController {
         }
     }
     @MessageMapping("/leave")
-    public void removeUser(String name){
+    public void removeUser(String name) throws JsonProcessingException {
+        String remove = null;
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonName = mapper.readTree(name);
+        String user = jsonName.get("name").asText();
         for(String listName : chatUsersList){
-            if(listName == name){
-                chatUsersList.remove(listName);
+            if(listName.equals(user)){
+                remove = listName;
             }
+        }
+        if(remove != null){
+            chatUsersList.remove(remove);
         }
     }
     @MessageMapping("/messageList")
